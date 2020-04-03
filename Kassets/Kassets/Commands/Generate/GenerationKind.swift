@@ -1,5 +1,5 @@
 //
-//  main.swift
+//  GenerationKind.swift
 //  Kassets
 //
 //  Created by Jérémy TOUZY on 03/04/2020.
@@ -8,4 +8,7 @@
 
 import ArgumentParser
 
-Kassets.main()
+enum GenerationKind: String, ExpressibleByArgument {
+    case all
+    case colors
+}
