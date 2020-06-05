@@ -9,19 +9,37 @@
 import Foundation
 
 class GenerateExecutor {
-    let kind: GenerationKind
-    let configFilePath: String
-    lazy var fileManager = FileManager.default
-    lazy var execDirectory = fileManager.currentDirectoryPath
+    typealias GenerationOptions = (ios: String, android: String)
 
-    init(for kind: GenerationKind, using configFilePath: String) {
+    let assets: Assets
+    let configuration: Configuration
+    let kind: GenerationKind
+
+    init(for kind: GenerationKind, using configFilePath: String, input inputFilePath: String) throws {
         self.kind = kind
-        self.configFilePath = configFilePath
+        configuration = try ConfigurationReader().readFromFile(at: configFilePath)
+        assets = try AssetsReader().readFromFile(at: inputFilePath)
     }
 
     func run() throws {
-        print("Execution dir: \(execDirectory)")
-        print("Config file path: \(configFilePath)")
-        print("Generation kind: \(kind)")
+        if [.all, .colors].contains(kind) {
+            try generateColors()
+        }
+    }
+
+    func verifyConfiguration<K, V>(
+        kind: GenerationKind, assets: Dictionary<K, V>, configuration: ConfigurationWithOutputs
+    ) throws -> GenerationOptions? {
+        guard !assets.isEmpty else {
+            print("Skipping \(kind.rawValue) generation, no \(kind.rawValue) given in assets.")
+            return nil
+        }
+        guard let iosOutput = configuration.outputs.ios else {
+            throw KassetsError.missingIosOutput
+        }
+        guard let androidOutput = configuration.outputs.android else {
+            throw KassetsError.missingAndroidOutput
+        }
+        return (ios: iosOutput, android: androidOutput)
     }
 }

@@ -19,12 +19,22 @@ extension Kassets {
 
         @Option(
             name: [.customLong("config"), .customShort("c")],
-            default: "kassets.json"
+            default: "kassets.config.json"
         )
         var configFilePath: String
 
+        @Option(
+            name: [.customLong("input"), .customShort("i")],
+            default: "kassets.json"
+        )
+        var inputFilePath: String
+
         func run() throws {
-            try GenerateExecutor(for: kind, using: configFilePath).run()
+            try GenerateExecutor(
+                for: kind,
+                using: configFilePath,
+                input: inputFilePath
+            ).run()
         }
     }
 }
